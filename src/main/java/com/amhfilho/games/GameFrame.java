@@ -11,6 +11,7 @@ public class GameFrame extends JFrame {
 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(800, 600);
+		setResizable(false);
 		setLocationRelativeTo(null); // Center the window
 
 		add(gamePanel);

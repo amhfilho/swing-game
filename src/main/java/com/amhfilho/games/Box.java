@@ -7,7 +7,7 @@ public class Box implements GameObject {
 	private float y;
 	private final int width;
 	private final int height;
-	private final float speedX;
+	private float speedX;
 
 	public Box(float x, float y, int width, int height, float speedX) {
 		this.x = x;
@@ -18,8 +18,16 @@ public class Box implements GameObject {
 	}
 
 	@Override
-	public void update(float deltaTime) {
+	public void update(float deltaTime, GameWorld world) {
 		x += speedX * deltaTime;
+
+		if (x < 0) {
+			x = 0;
+			speedX = -speedX;
+		} else if (x + width > world.getWidth()) {
+			x = world.getWidth() - width;
+			speedX = -speedX;
+		}
 	}
 
 	@Override

@@ -12,6 +12,7 @@ public class Main {
 			GamePanel panel = new GamePanel(world);
 			GameFrame frame = new GameFrame("Simple ball bouncing", panel);
 			frame.setVisible(true);
+			world.setBounds(panel.getWidth(), panel.getHeight());
 
 			new Game(frame, world, 60).start();
 		});
