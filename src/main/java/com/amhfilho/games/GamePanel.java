@@ -21,4 +21,12 @@ public class GamePanel extends JPanel {
 		// which causes visible stutter independent of frame timing. Force the flush.
 		Toolkit.getDefaultToolkit().sync();
 	}
+
+	public float getCenterX() {
+		return (float) this.getWidth() / 2;
+	}
+
+	public float getCenterY() {
+		return (float) this.getHeight() / 2;
+	}
 }
