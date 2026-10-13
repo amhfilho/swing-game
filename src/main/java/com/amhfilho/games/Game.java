@@ -19,10 +19,6 @@ public class Game implements Runnable {
 		gameThread.start();
 	}
 
-	public void stop() {
-		running = false;
-	}
-
 	@Override
 	public void run() {
 		long frameTimeNanos = 1_000_000_000L / fps;
@@ -37,15 +33,19 @@ public class Game implements Runnable {
 			world.update(deltaTime);
 			frame.getGamePanel().repaint();
 
-			long elapsed = System.nanoTime() - frameStart;
-			long sleepNanos = frameTimeNanos - elapsed;
-			if (sleepNanos > 0) {
-				try {
-					Thread.sleep(sleepNanos / 1_000_000, (int) (sleepNanos % 1_000_000));
-				} catch (InterruptedException e) {
-					Thread.currentThread().interrupt();
-					running = false;
-				}
+			sleepIfNeeded(frameStart, frameTimeNanos);
+		}
+	}
+
+	private void sleepIfNeeded(long frameStart, long frameTimeNanos) {
+		long elapsed = System.nanoTime() - frameStart;
+		long sleepNanos = frameTimeNanos - elapsed;
+		if (sleepNanos > 0) {
+			try {
+				Thread.sleep(sleepNanos / 1_000_000, (int) (sleepNanos % 1_000_000));
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+				running = false;
 			}
 		}
 	}
