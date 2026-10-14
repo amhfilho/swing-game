@@ -30,6 +30,7 @@ public class Game implements Runnable {
 			float deltaTime = (frameStart - lastTime) / 1_000_000_000.0f;
 			lastTime = frameStart;
 
+			world.getInput().poll();
 			world.update(deltaTime);
 			frame.getGamePanel().repaint();
 

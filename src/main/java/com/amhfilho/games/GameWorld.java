@@ -7,8 +7,17 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class GameWorld {
 	private final List<GameObject> gameObjects = new CopyOnWriteArrayList<>();
-	private int width;
-	private int height;
+	private volatile int width;
+	private volatile int height;
+	private final Input input;
+
+	public GameWorld(Input input) {
+		this.input = input;
+	}
+
+	public Input getInput() {
+		return input;
+	}
 
 	public void addGameObject(GameObject obj) {
 		gameObjects.add(obj);

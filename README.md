@@ -5,18 +5,20 @@ A minimal Java Swing game loop skeleton, built around a small set of classes in
 
 ## Design overview
 
-The package is split into three concerns: **running the loop**, **drawing on
-screen**, and **what's in the game**.
+The package is split into four concerns: **running the loop**, **drawing on
+screen**, **reading input**, and **what's in the game**.
 
 ```
 Main
- ├── builds a GameWorld and populates it with GameObjects (e.g. Box)
+ ├── builds an Input and a GameWorld(input), populates it with GameObjects
  ├── builds a GamePanel(world) and wraps it in a GameFrame
+ ├── input.attachTo(panel)   (Swing listeners record key/mouse state on the EDT)
  └── starts a Game(frame, world, fps) on its own thread
             │
             ▼
       Game (game loop thread)
-        update(deltaTime) ──► GameWorld ──► GameObject.update(deltaTime)
+        input.poll()       ──► snapshot key/mouse state for this frame
+        update(deltaTime) ──► GameWorld ──► GameObject.update(deltaTime, world)
         repaint()          ──► Swing EDT ──► GamePanel.paintComponent()
                                                └─► GameWorld.render(g) ──► GameObject.render(g)
 ```
@@ -65,12 +67,34 @@ Note that `update` happens on the game thread, while the actual painting
 `repaint()` is processed — `GameWorld`'s `CopyOnWriteArrayList` exists
 precisely to make that cross-thread access safe.
 
+### `Input`
+
+The only class that knows about AWT key/mouse listeners. `attachTo(component)`
+registers them on the `GamePanel`. The listeners run on the EDT and only
+**record state** into thread-safe sets; they never call game code.
+
+Once per frame, `Game` calls `poll()`, which snapshots that state so every
+object sees the same input for the whole frame. Game objects then **poll** it
+from `update()` via `world.getInput()`:
+
+- `isKeyDown(keyCode)` / `isMouseDown(button)` — held this frame.
+- `isKeyPressed(keyCode)` / `isMouseClicked(button)` — first frame of a press
+  only (OS key repeat is ignored).
+- `getMouseX()` / `getMouseY()` — cursor position in panel coordinates.
+
+Keys are cleared when the panel loses focus, so nothing gets stuck "down"
+after alt-tab. `Player` is the reference example of an input-driven object
+(arrows/WASD to move, left-click to teleport).
+
 ### `GamePanel` / `GameFrame`
 
 Thin Swing glue: `GamePanel` is the `JPanel` whose `paintComponent` delegates
 straight to `world.render(g)`, then forces a `Toolkit.sync()` flush (needed on
 Linux/X11, where drawing commands are otherwise buffered and cause visible
-stutter). `GameFrame` is the `JFrame` that hosts the panel and sets up the
+stutter). It also listens for resize events and keeps `GameWorld`'s bounds
+equal to its actual size — on X11 the frame decorations arrive asynchronously
+after the window is shown, so the panel's size at `setVisible` time is wrong.
+`GameFrame` is the `JFrame` that hosts the panel and sets up the
 window (size, close behavior, centering).
 
 ### `Main`
