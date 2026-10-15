@@ -31,11 +31,13 @@ public class Game implements Runnable {
 			lastTime = frameStart;
 
 			world.getInput().poll();
+			running = !world.getInput().isEscapePressed();
 			world.update(deltaTime);
 			frame.getGamePanel().repaint();
 
 			sleepIfNeeded(frameStart, frameTimeNanos);
 		}
+		frame.dispose();
 	}
 
 	private void sleepIfNeeded(long frameStart, long frameTimeNanos) {

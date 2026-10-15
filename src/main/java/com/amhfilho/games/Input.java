@@ -100,6 +100,10 @@ public class Input {
 		frameMouseY = mouseY;
 	}
 
+	public boolean isEscapePressed() {
+		return isKeyPressed(KeyEvent.VK_ESCAPE);
+	}
+
 	/** True while the key is held down. */
 	public boolean isKeyDown(int keyCode) {
 		return frameKeysDown.contains(keyCode);
